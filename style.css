@@ -1,0 +1,906 @@
+/* =========================
+   Clean & fixed CSS
+   ========================= */
+/* ================= Panduan Cepat (Bahasa Indonesia) =================
+   - Ubah warna/tema global di :root (variabel --accent, --text, dll.)
+   - Atur kolom grid proyek di bagian "Responsive" (@media min-width)
+   - Efek hover kartu & tombol ada di .project-card:hover dan .cta:hover
+   - Lightbox: tampilan dikontrol CSS, jumlah tombol/dots disembunyikan otomatis oleh JS bila slide <= 1
+   - Tombol View:
+       * data-gallery -> galeri per-kartu (multi gambar)
+       * tanpa data-gallery -> slide antar-kartu per-subsection
+       * data-single="true" -> hanya 1 gambar (tanpa prev/next/dots)
+   - Tidak perlu mengubah CSS untuk mode single; JS yang mengatur visibilitas kontrol.
+==================================================================== */
+:root{
+  --bg-top: #071024;
+  --bg-bottom: #0b1830;
+  --card-bg: rgba(255,255,255,0.03);
+  --accent: #7c5cff;
+  --accent-2: #00d4ff;
+  --text: #e8eefc;
+  --muted: #b8c2d8;
+  --radius: 12px;
+  --gap: 1rem;
+  --max-w: 1100px;
+  --trans-fast: 220ms;
+  --trans-med: 450ms;
+  --hover-dark: rgba(0,0,0,0.55);
+  --shine-color: rgba(255,255,255,0.12);
+  /* slightly lighter shadow to reduce repaint cost */
+  --shadow-strong: 0 12px 30px rgba(2,6,23,0.35);
+}
+
+/* Global anti-overflow (tanpa ubah tampilan) */
+html, body{ max-width:100%; overflow-x:hidden }
+
+
+/* Reset & base */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background: linear-gradient(180deg,var(--bg-top),var(--bg-bottom));
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  padding:2rem 1rem;
+  line-height:1.45;
+}
+.container{max-width:var(--max-w);margin:0 auto}
+a{color:inherit;text-decoration:none}
+
+/* NOTE: jangan beri border-radius global ke semua img.
+   Hanya beri pada gambar di kartu agar grid tetap rapi. */
+img{max-width:100%;height:auto;display:block}
+
+/* Header */
+.header-con{width:100%;padding:.6rem 0}
+.header-inner{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 0.5rem}
+.brand{display:flex;flex-direction:column}
+.portofolio{font-family:Poppins, Inter;font-size:clamp(1.8rem,4.6vw,2.8rem);background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.subtext{color:var(--muted);font-size:0.95rem}
+.navbar{display:flex;gap:.5rem;align-items:center}
+.navbar a{padding:.45rem .75rem;border-radius:999px;background:transparent;border:1px solid transparent;color:var(--text);font-weight:600;transition:all var(--trans-fast)}
+.navbar a:hover{background:rgba(255,255,255,0.04);transform:translateY(-2px)}
+
+/* Main content container */
+.site-main{max-width:var(--max-w);margin:1.5rem auto;display:grid;gap:1rem;padding:0 0.5rem}
+
+/* Sections */
+.section{padding:0;}
+.card{background:var(--card-bg);border-radius:var(--radius);padding:1rem;border:1px solid rgba(255,255,255,0.05)}
+
+/* Projects grid
+   - Default 1 kolom, berubah via breakpoint di bawah (Responsive)
+   - Ubah gap antar kartu dengan variabel --gap */
+.projects-grid{display:grid;grid-template-columns:1fr;gap:var(--gap)}
+
+/* Project card base */
+.project-card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:10px;
+  overflow:visible;
+  transition:transform var(--trans-fast) ease, box-shadow var(--trans-fast) ease;
+  display:block;
+  /* Perf: delay rendering offscreen cards (tanpa ubah tampilan) */
+  content-visibility:auto;
+  contain-intrinsic-size: 320px 420px; /* perkiraan tinggi untuk menghindari layout shift besar */
+  /* Batasi dampak repaint di sekitar kartu */
+  contain: layout paint;
+}
+
+/* Project media container (image wrapper) */
+.project-media{
+  position:relative;
+  overflow:hidden;
+  border-radius:10px;
+  background:linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+}
+
+/* Image inside project media gets radius to match wrapper */
+.project-media img{ border-radius:10px; display:block; width:100%; height:auto; transition: transform var(--trans-med) cubic-bezier(.2,.9,.2,1), filter 300ms; transform-origin:center center; }
+
+/* overlay that darkens image on hover */
+.project-media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--hover-dark) 100%);
+  opacity:0;
+  transition:opacity 260ms ease;
+  pointer-events:none;
+}
+
+/* shine element (optional) */
+.project-media .shine{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: linear-gradient(90deg, transparent 0%, var(--shine-color) 45%, transparent 60%);
+  transform: translateX(-120%) rotate(8deg);
+  opacity:0;
+  transition:opacity 260ms ease;
+}
+
+/* Triggerable sweep class (for button press cue) */
+.project-media .shine.sweep-now{ opacity:1; animation: sweep 900ms linear; }
+
+/* CTA button centered
+   - Tombol .cta muncul saat hover/focus pada kartu (lihat rules .project-card:hover/.focus-within)
+   - Mode non-lightbox (mis. data-nolightbox) dikendalikan oleh JS; CSS ini tetap sama */
+.project-media .cta{
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%) scale(.95);
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#021022;
+  padding:.5rem .85rem;
+  border-radius:999px;
+  font-weight:700;
+  font-size:.95rem;
+  opacity:0;
+  box-shadow:var(--shadow-strong);
+  transition: transform 220ms ease, opacity 220ms ease;
+  pointer-events:none;
+}
+
+/* Hover / focus effects - cleaned */
+.project-card:hover,
+.project-card:focus-within{
+  transform:translateY(-6px);
+  box-shadow:var(--shadow-strong);
+}
+.project-card:hover .project-media img,
+.project-card:focus-within .project-media img{
+  transform: scale(1.04);
+  filter: brightness(.7) saturate(.95);
+}
+.project-card:hover .project-media::after,
+.project-card:focus-within .project-media::after{
+  opacity:1;
+}
+.project-card:hover .project-media .shine,
+.project-card:focus-within .project-media .shine{
+  opacity:1;
+  animation: sweep 900ms linear;
+}
+.project-card:hover .project-media .cta,
+.project-card:focus-within .project-media .cta{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+  pointer-events:auto;
+}
+
+/* Entrance animation for project grid (staggered reveal) */
+:root{
+  --enter-ease: cubic-bezier(.2,.9,.2,1);
+  --enter-stagger: 80ms;
+  --enter-duration: 560ms;
+}
+
+/* initial (hidden) state */
+.project-card{
+  opacity: 0;
+  transform: translateY(18px) scale(.995);
+  will-change: transform, opacity;
+  transition: opacity var(--enter-duration) var(--enter-ease),
+              transform var(--enter-duration) var(--enter-ease);
+  /* per-card delay controlled by inline --i (set by JS) */
+  transition-delay: calc(var(--i, 0) * var(--enter-stagger));
+}
+
+/* revealed state when body has .loaded */
+body.loaded .project-card{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* After entrance completes, remove any stagger delay so hover feels instant */
+body.loaded .project-card{ transition-delay: 0ms; }
+body.loaded .project-media img{ transition-delay: 0ms; }
+body.loaded .project-caption{ transition-delay: 0ms; }
+
+/* Generic scroll-in reveal (works for any element) */
+.reveal,
+[data-animate]{
+  opacity: 0;
+  transform: translateY(14px);
+  will-change: transform, opacity;
+  transition: opacity 560ms var(--enter-ease, cubic-bezier(.2,.9,.2,1)),
+              transform 560ms var(--enter-ease, cubic-bezier(.2,.9,.2,1));
+}
+.in-view{
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal,
+  [data-animate]{ transition: none !important; transform: none !important; opacity: 1 !important; }
+}
+
+/* stagger caption slightly after card */
+.project-caption{
+  transition: opacity 320ms var(--enter-ease), transform 320ms var(--enter-ease);
+  opacity: 0;
+  transform: translateY(6px);
+  transition-delay: calc(var(--i, 0) * var(--enter-stagger) + 80ms);
+}
+body.loaded .project-caption{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* subtle image lift on reveal for depth */
+.project-media img{
+  transform-origin: center center;
+  transition: transform var(--enter-duration) var(--enter-ease);
+  /* start slightly zoomed out so reveal can settle to normal */
+  transform: scale(1.01);
+  transition-delay: calc(var(--i, 0) * var(--enter-stagger) + 20ms);
+}
+body.loaded .project-media img{
+  transform: scale(1);
+}
+
+/* Press feedback on media when View is clicked */
+.project-media.press-anim{
+  animation: pressPop 420ms cubic-bezier(.2,.9,.2,1);
+  will-change: transform;
+}
+@keyframes pressPop{
+  0% { transform: scale(1); }
+  30% { transform: scale(0.985); }
+  60% { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+
+/* Sweep animation */
+@keyframes sweep{
+  0% { transform: translateX(-120%) rotate(8deg); opacity:0; }
+  60% { transform: translateX(120%) rotate(8deg); opacity:1; }
+  100% { transform: translateX(240%) rotate(8deg); opacity:0; }
+}
+
+/* Caption below card */
+.project-caption{
+  padding:.6rem .8rem;
+  color: var(--muted);
+  font-size:.95rem;
+  text-align:center;
+  margin-top:.6rem;
+}
+
+/* ========== Lightbox / Modal ==========
+   Catatan:
+   - Prev/Next (.lightbox-nav) dan .lightbox-dots akan otomatis disembunyikan oleh JS saat jumlah slide <= 1
+   - Tidak perlu styling tambahan khusus untuk mode single */
+.lightbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.lightbox[aria-hidden="false"]{display:flex}
+.lightbox[aria-hidden="false"] .lightbox-panel{ animation: lbIn 320ms var(--enter-ease) both; }
+.lightbox[aria-hidden="false"] .lightbox-slider{ animation: lbZoomIn 360ms var(--enter-ease) both; }
+/* Closing state: play exit animations before hiding */
+.lightbox.closing .lightbox-panel{ animation: lbOut 260ms var(--enter-ease) both; }
+.lightbox.closing .lightbox-slider{ animation: lbZoomOut 240ms var(--enter-ease) both; }
+.lightbox.closing .lightbox-backdrop{ animation: lbFadeOut 220ms ease both; }
+.lightbox-backdrop{position:absolute;inset:0;background:rgba(2,6,23,0.7);backdrop-filter:blur(4px)}
+.lightbox-panel{position:relative;max-width:1100px;width:100%;z-index:2}
+.lightbox-close{position:absolute;right:-6px;top:-6px;background:rgba(227, 227, 227, 0.92);border:0;color:#000000;width:40px;height:40px;border-radius:10px;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+.lightbox-body { display: grid; grid-template-columns: 1fr 360px; gap: 18px; padding: 18px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
+.lightbox-slider { position: relative; overflow: hidden; border-radius: 10px; background: rgba(0,0,0,0.04); min-height: 320px; display:flex; align-items:center; justify-content:center; margin-bottom: 10px; }
+.lightbox-track { display:flex; width:100%; height:100%; transition: transform .36s cubic-bezier(.2,.9,.2,1); }
+.lightbox-track .slide { flex: 0 0 100%; display:grid; place-items:center; padding:12px; box-sizing:border-box; }
+.lightbox-track .slide img { width:100%; height:100%; object-fit:contain; border-radius:8px; max-height:70vh; }
+
+@keyframes lbIn{
+  from { opacity: 0; transform: translateY(10px) scale(.965); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes lbZoomIn{
+  from { opacity: 0; transform: scale(.985); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes lbOut{
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(10px) scale(.965); }
+}
+@keyframes lbZoomOut{
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(.985); }
+}
+@keyframes lbFadeOut{
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* dots indicators */
+.lightbox-dots{
+  position:absolute;
+  left:50%; bottom:10px;
+  transform:translateX(-50%);
+  display:flex; align-items:center; gap:8px;
+  padding:6px 8px;
+  border-radius:999px;
+  background: rgba(2,6,23,0.45);
+  backdrop-filter: blur(4px);
+  z-index:3;
+}
+.lightbox-dots button{
+  width:8px; height:8px;
+  border-radius:50%;
+  border:0; padding:0;
+  background: rgba(255,255,255,0.55);
+  cursor:pointer;
+  transition: transform 140ms ease, background 140ms ease;
+}
+.lightbox-dots button:hover{ transform: scale(1.15) }
+.lightbox-dots button[aria-selected="true"]{ background:#ffffff; transform: scale(1.2) }
+
+/* nav buttons */
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  border: 0;
+  background: rgba(227, 227, 227, 0.92);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  z-index: 3; /* pastikan di atas gambar */
+}
+.lightbox-prev { left: 8px; }
+.lightbox-next { right: 8px; }
+.lightbox-nav:hover { transform: translateY(-50%) scale(1.04); background:rgba(216, 216, 216, 0.745); }
+
+/* Arrow icons via CSS triangles (no text, avoids mojibake) */
+.lightbox-nav::before{
+  content: "";
+  display: block;
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  /* keep centered inside grid button */
+  pointer-events: none;
+}
+.lightbox-prev::before{ border-right: 12px solid #000000; margin-left: -2px; }
+.lightbox-next::before{ border-left: 12px solid #000000; margin-left: 2px; }
+
+.lightbox-info{display:flex;flex-direction:column;gap:10px; position:relative; z-index:2}
+.lightbox-title{margin:0;color:var(--text);font-size:1.08rem}
+.lightbox-desc{
+  min-height:120px;
+  padding:12px 14px;
+  border-radius:10px;
+  background: rgba(2,6,23,0.72);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+  line-height: 1.6;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  overflow:auto;
+  white-space:pre-wrap;
+}
+
+/* pastikan .cta adalah tombol yang tampak & keyboard-friendly */
+.cta{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(.95);
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#021022;
+  padding:.55rem .9rem;
+  border-radius:999px;
+  font-weight:700;
+  font-size:.95rem;
+  opacity:0;
+  box-shadow:var(--shadow-strong);
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease, box-shadow 220ms ease;
+  pointer-events:none;
+  border:0;
+  cursor:pointer;
+}
+
+/* tampilan tombol saat hover/focus langsung pada tombol */
+.cta:hover{
+  transform:translate(-50%,-50%) scale(1.06);
+  box-shadow: 0 14px 40px rgba(124,92,255,0.18), 0 6px 18px rgba(0,0,0,0.45);
+}
+
+/* tampilkan tombol saat hover/focus pada kartu */
+.project-card:hover .cta,
+.project-card:focus-within .cta{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+  pointer-events:auto;
+}
+
+@media (max-width:900px){
+  .lightbox-body{grid-template-columns:1fr;max-height:82vh;overflow:auto; padding: 14px}
+  .lightbox-info{order:2}
+  .lightbox-slider{max-height:60vh}
+  .lightbox-track .slide img{max-height:58vh}
+  .lightbox-title{font-size:1.02rem}
+  .lightbox-desc{min-height:unset}
+}
+
+/* Responsive */
+@media (min-width:640px){
+  .projects-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (min-width:992px){
+  .projects-grid{grid-template-columns:repeat(3,1fr)}
+  body{padding:2.5rem 2rem}
+}
+
+/* Non-intrusive mobile/desktop hardening (tampilan tetap sama) */
+@media (max-width:700px){
+  /* Matikan background-attachment fixed di mobile (mengurangi repaint jank) */
+  body{ background-attachment: scroll; background-position: center top; }
+  /* Kurangi beban blob background: blur lebih kecil, blend normal, opasitas diturunkan */
+  body::before, body::after{
+    filter: blur(calc(var(--bg-blob-blur) * .6));
+    mix-blend-mode: normal;
+    opacity: .08;
+    will-change: auto;
+  }
+  /* hindari overflow horizontal dan pastikan header rapi */
+  .header-inner{flex-wrap:wrap; gap:.75rem}
+  .navbar{flex-wrap:wrap}
+  .navbar a{padding:.42rem .7rem}
+  .site-main{padding:0 .5rem}
+  .projects-grid{gap:calc(var(--gap) * 0.9)}
+  /* caption panjang tidak memaksa layout melar */
+  .project-caption{word-wrap:break-word; overflow-wrap:anywhere}
+  /* Lightbox lebih sempit di mobile agar tidak overflow */
+  .lightbox-panel{width:100%}
+  .lightbox-body{grid-template-columns:1fr}
+  /* Kurangi shadow berat pada tombol lightbox */
+  .lightbox-nav, .lightbox-close{ box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+}
+
+/* Mobile performance tuning tanpa mengubah tampilan akhir */
+@media (max-width:480px){
+  /* hentikan animasi background blob agar hemat baterai/GPU */
+  body::before, body::after { animation: none !important; }
+  /* efek shine dan hover berat dinonaktifkan di touch device */
+  .project-media .shine{ display:none; }
+  .project-media::after{ display:none; }
+  .project-media img{ transition: none; }
+  /* backdrop blur berat diganti solid untuk performa */
+  .lightbox-backdrop{ backdrop-filter:none; background:rgba(2,6,23,0.82) }
+  /* Non-essential text entrance transitions dimatikan */
+  .section-subtitle{ transition: none; }
+  .subtitle-grad{ transition: none; }
+}
+
+@media (hover: none){
+  /* Matikan efek hover yang berat pada perangkat touch */
+  .navbar a:hover{ background:inherit; transform:none }
+  .project-card:hover,
+  .project-card:focus-within{ transform:none; box-shadow:none }
+  .project-card:hover .project-media img,
+  .project-card:focus-within .project-media img{ transform:none; filter:none }
+  .project-card:hover .project-media::after,
+  .project-card:focus-within .project-media::after{ opacity:0 }
+  .project-card:hover .project-media .shine,
+  .project-card:focus-within .project-media .shine{ opacity:0; animation:none }
+  .project-card:hover .cta,
+  .project-card:focus-within .cta{ transform:translate(-50%,-50%) scale(1); box-shadow:none }
+}
+
+/* Very small devices safeguard */
+@media (max-width:360px){
+  .navbar a{font-size:.9rem}
+  .project-caption{font-size:.9rem}
+}
+
+/* Safe-area insets (iOS notch) tanpa ubah tampilan desktop */
+@supports(padding:max(0px)){
+  body{
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* Accessibility */
+a:focus{outline:3px solid rgba(124,92,255,0.16);outline-offset:4px}
+.project-card:focus-within{outline:2px solid rgba(255,255,255,0.03);outline-offset:6px}
+
+
+
+
+
+
+/* =========================
+   Clean single background block
+   - Hapus duplikat / puing background sebelumnya
+   - Satu :root untuk variabel background saja
+   - Dua pseudo-elements halus, respect prefers-reduced-motion
+   ========================= */
+:root{
+  --bg-base: #040517;
+  --bg-shade-top: rgba(8,10,20,0.55);
+  --bg-bottom-shade: rgba(3,6,12,0.78);
+
+  --bg-blob-1: rgba(124,92,255,0.12);
+  --bg-blob-2: rgba(0,212,255,0.08);
+
+  /* reduce blur and slow animations a bit for smoother scrolling */
+  --bg-blob-blur: 80px;
+  --bg-blob-dur-a: 28s;
+  --bg-blob-dur-b: 36s;
+  --bg-ease: cubic-bezier(.2,.9,.2,1);
+}
+
+/* Base background (subtle gradient + faint radial accents) */
+body{
+  background-color: var(--bg-base) !important;
+  background-image:
+    radial-gradient(circle at 12% 14%, rgba(125, 92, 255, 0.593), transparent 18%),
+    radial-gradient(circle at 88% 30%, rgba(0, 213, 255, 0.378), transparent 20%),
+    linear-gradient(180deg, var(--bg-shade-top), var(--bg-bottom-shade));
+  background-attachment: scroll; /* reduce scroll jank on some GPUs */
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Pastikan section tidak melebar melebihi viewport */
+.section{ box-sizing:border-box; max-width:100% }
+
+/* Contact text wrapping agar tidak memicu horizontal scroll */
+#contact p{ overflow-wrap:anywhere; word-break:break-word }
+
+/* Contact section styling */
+#contact {
+  margin-top: 1rem;
+}
+
+.contact-card{
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.contact-header{ display:flex; align-items:center; gap:12px; flex-wrap: nowrap; }
+.avatar{
+  width: 56px; height:56px; /* sedikit lebih besar agar terlihat rapi */
+  /* Hindari bug aspect-ratio di Chrome Android: kunci ukuran via flex-basis */
+  border-radius:50%;
+  display:flex; /* pastikan konten mengisi penuh wrapper */
+  align-items:stretch; justify-content:stretch;
+  flex: 0 0 56px; /* kunci lebar item flex */
+  min-width: 56px; /* pastikan tidak menjadi oval saat menyempit */
+  min-height: 56px;
+  position: relative; /* untuk absolut anak */
+  isolation: isolate; /* hindari efek eksternal */
+  line-height: 0; /* hilangkan whitespace internal */
+  background: linear-gradient(135deg, #7c5cff 0%, #00d4ff 100%);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  overflow: hidden; /* pastikan gambar terpotong dalam lingkaran */
+}
+.avatar picture{ display:block; width:100%; height:100%; position:absolute; inset:0 }
+.avatar img{ width:100%; height:100%; object-fit:cover; object-position:50% 7%; display:block; border-radius:inherit; position:absolute; inset:0; transform: translateZ(0) }
+.contact-text{ display:flex; flex-direction:column; gap:2px }
+.contact-title{ margin:0; font-size:1.05rem; color:var(--text) }
+.contact-subtitle{ margin:0; color:var(--muted); font-size:.95rem }
+
+.contact-lead{ color:var(--text); opacity:.9; line-height:1.6 }
+
+.contact-actions{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .6rem 1.05rem;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
+.btn:active{ transform: translateY(1px) }
+
+.btn-primary{
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color: #021022;
+  box-shadow: 0 12px 30px rgba(124,92,255,0.18), 0 6px 18px rgba(0,0,0,0.35);
+}
+.btn-primary:hover{
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 16px 36px rgba(124,92,255,0.22), 0 8px 22px rgba(0,0,0,0.42);
+}
+
+.btn-ghost{
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.btn-ghost:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 8px 22px rgba(0,0,0,.3);
+}
+
+.contact-info{
+  color: var(--muted);
+  text-decoration: none;
+}
+.contact-info a{ color: inherit; text-decoration: none; transition: color 160ms ease }
+.contact-info a:hover{ text-decoration: none; color: var(--accent, #6ea8ff) }
+
+/* Add small icons before Email and IG links */
+.contact-email a,
+.contact-ig a{ display: inline-flex; align-items: center; gap: 8px }
+.contact-email a::before{ content: "✉️"; font-size: 0.95em; line-height: 1; }
+.contact-ig a::before{ content: "📷"; font-size: 0.95em; line-height: 1; }
+
+/* Stack Email and IG vertically on small screens, hide the inline separator */
+@media (max-width:700px){
+  .contact-info{ display:flex; flex-direction:column; gap:4px }
+  .contact-info .contact-sep{ display:none }
+}
+
+@media (min-width: 720px){
+  .contact-card{ padding: 20px; gap: 18px }
+  .avatar{ width: 64px; height:64px; min-width:64px; min-height:64px; flex-basis:64px; }
+  .contact-title{ font-size:1.15rem }
+}
+
+/* Two large, soft animated blobs via pseudo-elements */
+body::before,
+body::after{
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform, opacity;
+  filter: blur(var(--bg-blob-blur));
+  mix-blend-mode: screen;
+  opacity: 0.07; /* a bit lighter for GPU */
+}
+
+/* left / top blob */
+body::before{
+  left: -32vw;
+  top: -22vh;
+  width: 160vmax;
+  height: 120vmax;
+  background: radial-gradient(circle at 30% 30%, var(--bg-blob-1), transparent 48%);
+  animation: bgBlobA var(--bg-blob-dur-a) var(--bg-ease) infinite both;
+}
+
+/* right / upper blob */
+body::after{
+  right: -30vw;
+  top: -12vh;
+  width: 150vmax;
+  height: 110vmax;
+  background: radial-gradient(circle at 70% 20%, var(--bg-blob-2), transparent 50%);
+  animation: bgBlobB var(--bg-blob-dur-b) var(--bg-ease) infinite both;
+}
+
+/* Gentle movement */
+@keyframes bgBlobA{
+  0%   { transform: translate3d(0,0,0) scale(1); opacity:0.07; }
+  50%  { transform: translate3d(3vw,2.5vh,0) scale(1.015); opacity:0.09; }
+  100% { transform: translate3d(0,0,0) scale(1); opacity:0.07; }
+}
+@keyframes bgBlobB{
+  0%   { transform: translate3d(0,0,0) scale(1); opacity:0.065; }
+  50%  { transform: translate3d(-3vw,3vh,0) scale(1.012); opacity:0.085; }
+  100% { transform: translate3d(0,0,0) scale(1); opacity:0.065; }
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  body::before, body::after { animation: none !important; transition: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .project-media.press-anim{ animation: none !important; }
+  .project-media .shine.sweep-now{ animation: none !important; opacity: 0 !important; }
+  .lightbox[aria-hidden="false"] .lightbox-panel,
+  .lightbox[aria-hidden="false"] .lightbox-slider{ animation: none !important; }
+  .lightbox.closing .lightbox-panel,
+  .lightbox.closing .lightbox-slider,
+  .lightbox.closing .lightbox-backdrop{ animation: none !important; }
+}
+
+/* Ensure content sits above background */
+.header-inner,
+.site-main,
+.card,
+.project-card,
+.lightbox-panel {
+  position: relative;
+  z-index: 2;
+}
+
+/* ================= Mobile Optimizations ================= */
+@media (hover: none), (pointer: coarse){
+  /* Show CTA without hover on touch devices */
+  .project-card .project-media .cta{
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+    pointer-events: auto !important;
+  }
+  /* Slightly larger CTA hit area */
+  .project-card .project-media .cta{ padding: .6rem 1rem; border-radius: 12px; }
+}
+
+@media (max-width: 640px){
+  /* Lightbox: stack content vertically */
+  .lightbox-body{ grid-template-columns: 1fr; gap: 14px; padding: 14px; }
+  .lightbox-info{ margin-top: 4px; }
+  /* Larger tap targets for controls */
+  .lightbox-close{ width: 48px; height: 48px; right: 4px; top: 4px; font-size: 24px; }
+  .lightbox-nav{ width: 52px; height: 52px; }
+  .lightbox-dots{ gap: 10px; padding: 8px 10px; }
+  .lightbox-dots > *{ transform: scale(1.1); }
+  /* Constrain image height a bit more to fit on small screens */
+  .lightbox-track .slide img{ max-height: 62vh; }
+}
+
+/* Section titles entrance (fade + lift) */
+.section-subtitle {
+  opacity: 0;
+  transform: translateY(8px) scale(.995);
+  will-change: transform, opacity;
+  transition: opacity 520ms var(--enter-ease, cubic-bezier(.2,.9,.2,1)),
+              transform 520ms var(--enter-ease, cubic-bezier(.2,.9,.2,1));
+  transition-delay: calc(var(--i, 0) * var(--enter-stagger, 80ms));
+  display: inline-block; /* keep transform contained */
+}
+
+/* ensure subsection label (h3) uses same animation */
+.projects-subsection .section-subtitle{
+  display:inline-block;
+}
+
+/* when loaded, reveal titles */
+body.loaded .section-subtitle{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Align only the RESULTS section title to the left */
+#results .projects-subsection{
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: left; /* fallback */
+  margin: .6rem 0;
+  padding-left: 0.5rem; /* kecil indent agar tidak menempel ke tepi */
+}
+
+#results .projects-subsection .section-subtitle{
+  display: inline-block;
+  margin: 0;
+  padding: .35rem .75rem;
+}
+
+/* Judul subsection:
+   - #results tetap kiri (sudah ada override)
+   - semua judul subsection lain (contoh: On Job Training, 3D Render) tampil di tengah
+   - beri gradient text mirip Portofolio (fallback warna disertakan)
+*/
+.projects-subsection{
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center; /* center by default */
+  align-items: center;
+  text-align: center;
+  margin: .6rem 0;
+}
+
+/* gradient text for centered subsection titles */
+.projects-subsection .section-subtitle{
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7c5cff 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+/* RESULT override: left aligned and plain white */
+#results .projects-subsection{
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: 0.5rem;
+}
+#results .projects-subsection .section-subtitle{
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* === Fix: separate RESULTS (left/plain) from other subsection titles (center/gradient) === */
+/* Default for subsections inside #results: center (override earlier broad rules) */
+#results .projects-subsection {
+  justify-content: center;
+  text-align: center;
+  padding-left: 0;
+}
+
+/* First subsection inside #results = the "RESULTS" title -> left, plain white */
+#results > .projects-subsection:first-of-type {
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: 0.5rem;
+}
+#results > .projects-subsection:first-of-type .section-subtitle {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Any other subsection inside #results (e.g. On Job Training, 3D Render) -> centered with gradient */
+#results > .projects-subsection:not(:first-of-type) {
+  justify-content: center;
+  text-align: center;
+  padding-left: 0;
+}
+.subtitle-grad {
+  background: linear-gradient(90deg, #7c5cff 0%, #00d4ff 60%, #8be9d8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  display: inline-block;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  font-size: 25px;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.18); /* opsional: sedikit kontras */
+  display: inline-block; /* agar gradien tidak melebar full */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .5s ease-out, transform .5s ease-out;
+}
+
+
+body.loaded .subtitle-grad {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* fallback: pastikan general centered subsection style tetap tidak terpengaruh */
+#results > .projects-subsection:not(:first-of-type) {
+  justify-content: center;
+  text-align: center;
+}
+#results > .projects-subsection:first-of-type .section-subtitle {
+  /* tetap putih untuk RESULTS */
+  background: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Small-screen tweak */
+@media (max-width:700px){
+  #results > .projects-subsection:first-of-type { padding-left: .75rem; }
+}

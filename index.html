@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portofolio-Raga Kalas Ramadhan</title>
+
+  <!-- Font modern -->
+  <!-- Preconnect to speed up font fetching -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* fallback animation (tidak perlu diubah) */
+    .fade-in { opacity: 0; transform: translateY(12px); animation: fadeInUp .9s ease-out forwards; }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    /* Override: remove entrance stagger delay after load so hover is instant */
+    body.loaded .project-card{ transition-delay: 0ms !important; }
+    body.loaded .project-media img{ transition-delay: 0ms !important; }
+    body.loaded .project-caption{ transition-delay: 0ms !important; }
+    /* Override: force-remove any underline/border styles on contact links */
+    .contact-info a,
+    .contact-info a:link,
+    .contact-info a:visited,
+    .contact-info a:hover,
+    .contact-info a:active{
+      text-decoration: none !important;
+      text-decoration-color: transparent !important;
+      text-decoration-style: solid !important;
+      border-bottom: 0 !important;
+      outline: none !important;
+    }
+    /* Inline: ensure icons show and hover color applies (overrides any external CSS) */
+    .contact-email::before{ content: "✉️"; margin-right: 8px; }
+    .contact-ig::before{ content: "📷"; margin-right: 8px; }
+    .contact-info a{ transition: color 160ms ease !important; }
+    .contact-info a:hover{ color: var(--accent, #6ea8ff) !important; }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <header class="header-con fade-in" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <h1 class="portofolio">PORTOFOLIO</h1>
+        <p class="subtext">Junior Graphic Designer | 3D Artist | Editor</p>
+      </div>
+
+      <nav class="navbar" aria-label="Main navigation">
+        <a href="#about">About</a>
+        <a href="#results">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main">
+    <!-- ================= Panduan: Bagian About =================
+         - Edit judul dan paragraf pengenalan di dalam div.about-inner
+         - Tidak ada logika khusus di JS untuk bagian ini -->
+    <section id="about" class="section card glass fade-in">
+      <div class="about-inner">
+        <h2>INTRODUCE</h2>
+        <p>My name is Raga Kalas Ramadhan, commonly known as Raga. I graduated in 2025 from a Vocational High School majoring in Visual Communication Design, with three years of practical experience in graphic design and multimedia editing. I have demonstrated strong leadership as the Head of the school's Creative Team, successfully managing projects and guiding the team in producing visual content for official events and internal publications.</p>
+      </div>
+    </section>
+
+    <!-- ================= Panduan: Bagian Projects/Results =================
+         - Struktur utama: .projects-grid berisi beberapa subsection dan kartu (project-card)
+         - Setiap kartu minimal berisi:
+             <article class="project-card">
+               <div class="project-media"> [gambar + tombol View] </div>
+               <div class="project-caption">[judul pendek di bawah gambar]</div>
+             </article>
+         - Tombol View mendukung 3 mode:
+             1) data-gallery="url1, url2, ..."  -> Lightbox menampilkan GALERI gambar untuk kartu ini saja (per-card gallery)
+             2) TANPA data-gallery             -> Lightbox berpindah antar kartu di subsection yang sama (slide antar-kartu)
+             3) data-single="true"             -> Lightbox menampilkan 1 gambar saja (tanpa prev/next/dots)
+           Opsional: tambahkan data-title dan data-desc pada tombol untuk mengisi judul/deskripsi di lightbox.
+         - Cara menambah kartu baru: duplikasi salah satu <article class="project-card"> lalu sesuaikan gambar dan atribut tombolnya.
+         - Batas navigasi slide: otomatis dibatasi per-subsection (tidak melewati subsection berikutnya). -->
+    <section id="results" class="section">
+      <!-- RESULTS (kiri, plain white) | Ubah teks judul di bawah ini jika perlu -->
+      <div class="projects-subsection" style="grid-column:1 / -1; margin:.6rem 0;">
+        <h2 class="section-subtitle">RESULTS</h2>
+      </div>
+
+      <!-- Grid container: tempat semua subsection + kartu -->
+      <div class="projects-grid">
+        <!-- Subsection: On Job Training (centered) | Edit judul subsection di h3.subtitle-grad -->
+        <div class="projects-subsection">
+          <h3 class="subtitle-grad">On Job Training - Mandiri Digital Universe</h3>
+        </div>
+
+        <!-- Card 1 | Contoh kartu dengan GALERI per-kartu (pakai data-gallery) -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/Carousel/Carousel 3/Software yang sering digunakan oleh youtuber_Page_1.webp" /><img  src="Assets/Carousel/Carousel 3/Software yang sering digunakan oleh youtuber_Page_1.png" alt="Carousell Design" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="Detail" data-desc="Topic: Software Recommendation For Youtuber. This content aims to inform about the software commonly used by YouTubers/content creators in creating content." data-gallery="Assets/Carousel/Carousel 3/Software yang sering digunakan oleh youtuber_Page_1.webp, Assets/Carousel/Carousel 3/Software yang sering digunakan oleh youtuber_Page_2.webp, Assets/Carousel/Carousel 3/Software yang sering digunakan oleh youtuber_Page_3.webp">View</button>
+          </div>
+          <div class="project-caption">Carousell - Software Recommendation For Youtuber</div>
+        </article>
+
+        <!-- Card 2 | Contoh kartu dengan GALERI per-kartu (pakai data-gallery) -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_1.webp" /><img  src="Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_1.png" alt="Steam Autumn Sale" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="Detail" data-desc="Topic: Why Blender 3D has become the most favored modeling software. Aimed at informing about the advantages of 3D blender, so it can become one of the most favored 3D modeling software." data-gallery="Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_1.webp, Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_2.webp, Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_3.webp, Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_4.webp, Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_5.webp">View</button>
+          </div>
+          <div class="project-caption">Carousell - Why Blender 3D has become the most favored modeling software.</div>
+        </article>
+
+        <!-- Card 3 | Contoh kartu dengan GALERI per-kartu (pakai data-gallery) -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_1.webp" /><img  src="Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_1.png" alt="Cara merawat laptop" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="Detail" data-desc="Topic: How To Maintain a Laptop. This content aims to inform users on how to properly maintain and care for their laptops." data-gallery="Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_1.webp, Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_2.webp, Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_3.webp, Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_4.webp, Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_5.webp">View</button>
+          </div>
+          <div class="project-caption">Carousell - How To Maintain a Laptop</div>
+        </article>
+
+        <!-- Card 4 (OJT extra) | Mode SINGLE (data-single) -> tampil 1 gambar saja di lightbox, tanpa navigasi -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/Carousel/Carousel 3/Software yang sering digunakan oleh youtuber_Page_2.webp" /><img  src="Assets/Posters/Flayer 17 Agustus 2024 revisi.webp" alt="Poster Design HUT RI ke-79" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-single="true" data-title="Detail" data-desc="This poster design is intended to celebrate Indonesia's independence day. The colors emphasized in this poster are red and white. Red symbolizes courage, while white symbolizes purity. Red and white are also the colors of the national emblem of Indonesia.">View</button>
+          </div>
+          <div class="project-caption">Poster Design - HUT RI ke-79</div>
+        </article>
+
+        <!-- Card 5 (OJT extra) | Mode SINGLE (data-single) -> tampil 1 gambar saja di lightbox, tanpa navigasi -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/Carousel/Carousel 2/Alasan blender 3d menjadi pilihan_Page_2.webp" /><img  src="Assets/Posters/Hari Kesaktian Pancasila MDU REV (SMK YAPIMDA).webp" alt="Hari Kesaktian Pancasila" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-single="true" data-title="Detail" data-desc="This poster design is intended to welcome Pancasila Day. Pancasila is the foundation of the state and the ideology of the Indonesian nation, consisting of five principles that serve as guidelines in national life and governance. The red and white colors in this poster symbolize Bravery and Purity.">View</button>
+          </div>
+          <div class="project-caption">Poster Design - Hari Kesaktian Pancasila</div>
+        </article>
+
+        <!-- Card 6 (OJT extra) | Mode SINGLE (data-single) -> tampil 1 gambar saja di lightbox, tanpa navigasi -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/Carousel/Carousel 1/Cara agar laptop tidak cepat rusak_Page_2.webp" /><img  src="Assets/Posters/Maulid Nabi Muhammad MDU Raga Kalas Ramadhan.webp" alt="Maulid Nabi Muhammad SAW." loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-single="true" data-title="Detail" data-desc="This poster design is intended to commemorate the birth of the Prophet Muhammad SAW. The Prophet Muhammad SAW’s birthday celebration is a religious event for Muslims in Indonesia, held annually to honor the birth of the Prophet Muhammad SAW. The combination of blue and white in the design aims to convey a sense of simplicity, purity, and elegance.">View</button>
+          </div>
+          <div class="project-caption">Poster Design - Maulid Nabi Muhammad SAW.</div>
+        </article>
+
+        <!-- Subsection: Preview 3D Renders (centered) | Edit judul subsection di h3.subtitle-grad -->
+        <div class="projects-subsection">
+          <h3 class="subtitle-grad">3D Renders</h3>
+        </div>
+
+        <!-- Card 4 (copy) | Contoh kartu tanpa data-gallery -> slide antar-kartu di subsection 3D Renders -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/3D Render/Blender Color Correctionc2.webp" /><img  src="Assets/3D Render/Blender Color Correctionc2.png" alt="3D Interior Render" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="3D Interior Render" data-desc="Render interior living room dengan pencahayaan alami dan material tekstur realistis.">View</button>
+          </div>
+          <div class="project-caption">3D - Interior Render (Living Room)</div>
+        </article>
+
+        <!-- Card 5 (copy) | Contoh kartu tanpa data-gallery -> slide antar-kartu di subsection 3D Renders -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/3D Render/MetroMini CC.webp" /><img  src="Assets/3D Render/MetroMini CC.png" alt="3D Product Render" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="3D Product Render" data-desc="Render produk kamera konsep dengan fokus detail bahan dan pencahayaan studio.">View</button>
+          </div>
+          <div class="project-caption">3D - Product Render (Camera Concept)</div>
+        </article>
+
+        <!-- Card 6 (copy) | Contoh kartu tanpa data-gallery -> slide antar-kartu di subsection 3D Renders -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><source type="image/webp" srcset="Assets/3D Render/Train  E 2.webp" /><img  src="Assets/3D Render/Train  E 2.png" alt="3D Environment Scene" loading="lazy" decoding="async" fetchpriority="low" width="900" height="900"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="3D Environment" data-desc="Landscape sci-fi dengan elemen atmosferik, depth, dan komposisi dramatis.">View</button>
+          </div>
+          <div class="project-caption">3D - Environment (Sci-Fi Landscape)</div>
+        </article>
+
+        <!-- Subsection lain (contoh Poster Design). Duplikasi pola ini jika ingin menambah kategori baru. -->
+        <div class="projects-subsection">
+          <h3 class="subtitle-grad">Poster Design</h3>
+        </div>
+
+        <!-- Card example di Poster Design (tanpa data-gallery) -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><img  src="Assets/Posters/POSTER RAMADHAN.png" alt="Poster Ramadhan" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="Detail" data-desc="Render interior living room dengan pencahayaan alami dan material tekstur realistis.">View</button>
+          </div>
+          <div class="project-caption">Poster Design Ramadhan</div>
+        </article>
+
+        <!-- Card example di Poster Design (tanpa data-gallery) -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><img  src="Assets/Posters/PPDB SMK YAPIMDA.png" alt="Poster PPDB" loading="lazy" decoding="async" fetchpriority="low" width="1080" height="1080"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="Detail" data-desc="Render produk kamera konsep dengan fokus detail bahan dan pencahayaan studio.">View</button>
+          </div>
+          <div class="project-caption">Poster Design - PPDB SMK Yapimda</div>
+        </article>
+
+        <!-- Card example di Poster Design (tanpa data-gallery) -->
+        <article class="project-card">
+          <div class="project-media">
+            <picture><img  src="Assets/Posters/Poster Idul Adha Raga Kalas R.png" alt="Poster Design Idul Adha" loading="lazy" decoding="async" fetchpriority="low" width="900" height="900"></picture>
+            <div class="shine"></div>
+            <button class="cta" type="button" data-title="Detail" data-desc="Landscape sci-fi dengan elemen atmosferik, depth, dan komposisi dramatis.">View</button>
+          </div>
+          <div class="project-caption">Poster Design - Eid Al-Adha</div>
+        </article>
+      </div>
+      
+    </section>
+
+    <section id="contact" class="section card glass fade-in">
+      <h2>Contact</h2>
+      <div class="contact-card">
+        <div class="contact-header">
+          <div class="avatar">
+            <picture>
+              <source type="image/webp" srcset="Assets/Raga Kalas R 3x4.webp" />
+              <img src="Assets/Raga Kalas R 3x4.png" alt="Raga Kalas Ramadhan" width="120" height="120" loading="lazy" decoding="async" fetchpriority="low" />
+            </picture>
+          </div>
+          <div class="contact-text">
+            <h3 class="contact-title">Raga Kalas Ramadhan</h3>
+            <p class="contact-subtitle">Junior Graphic Designer · 3D Artist · Editor</p>
+          </div>
+        </div>
+
+        <p class="contact-lead">Open for freelance and collaboration. Let’s create something impactful together.</p>
+
+        <div class="contact-actions">
+          <a id="emailBtn" class="btn btn-primary" href="https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=ragakalasramadhan27@gmail.com&su=Collaboration%20Inquiry&body=Hi%20Raga%2C%0A%0A" aria-label="Compose email to Raga in Gmail">Email Me</a>
+          <a class="btn btn-ghost" href="https://instagram.com/raa.insidee" target="_blank" rel="noopener" aria-label="Open Instagram profile">Instagram</a>
+        </div>
+
+        <div class="contact-info">
+          <span class="contact-email">Email: <a href="mailto:ragakalasramadhan27@gmail.com">ragakalasramadhan27@gmail.com</a></span>
+          <span class="contact-sep" aria-hidden="true">|</span>
+          <span class="contact-ig">IG: <a href="https://instagram.com/raa.insidee" target="_blank" rel="noopener">@raa.insidee</a></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= Panduan: Modal/Lightbox =================
+       - Struktur lightbox berisi:
+           .lightbox-slider -> .lightbox-track diisi elemen .slide oleh JS
+           Tombol .lightbox-prev / .lightbox-next untuk navigasi
+           .lightbox-dots untuk indikator slide
+           .lightbox-title dan .lightbox-desc untuk judul dan deskripsi
+       - Tombol navigasi & dots otomatis disembunyikan saat jumlah slide <= 1
+       - Ganti teks tombol tutup pada attribute aria-label jika perlu -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <div class="lightbox-backdrop" data-close></div>
+
+    <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="Preview image">
+      <button class="lightbox-close" aria-label="Tutup">&times;</button>
+
+      <div class="lightbox-body">
+        <!-- slider: track akan diisi oleh JS -->
+        <div class="lightbox-slider">
+          <div class="lightbox-track" role="list"></div>
+          <!-- prev / next now inside slider so buttons center to image -->
+          <button class="lightbox-nav lightbox-prev" aria-label="Sebelumnya"></button>
+          <button class="lightbox-nav lightbox-next" aria-label="Berikutnya"></button>
+          <!-- dots indicators -->
+          <div class="lightbox-dots" role="tablist" aria-label="Slide indicators"></div>
+        </div>
+
+        <div class="lightbox-info">
+          <h3 class="lightbox-title"></h3>
+          <div class="lightbox-desc" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
